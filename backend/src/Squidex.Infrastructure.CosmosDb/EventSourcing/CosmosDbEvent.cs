@@ -5,29 +5,24 @@
 //  All rights reserved. Licensed under the MIT license.
 // ==========================================================================
 
-using MongoDB.Bson.Serialization.Attributes;
-using Squidex.Infrastructure.MongoDb;
+using Newtonsoft.Json;
 
 namespace Squidex.Infrastructure.EventSourcing
 {
-    public sealed class MongoEvent
+    internal sealed class CosmosDbEvent
     {
-        [BsonElement]
-        [BsonRequired]
+        [JsonProperty("type")]
         public string Type { get; set; }
 
-        [BsonJson]
-        [BsonRequired]
+        [JsonProperty("payload")]
         public string Payload { get; set; }
 
-        [BsonElement("Metadata")]
-        [BsonRequired]
-        [BsonJson]
+        [JsonProperty("header")]
         public EnvelopeHeaders Headers { get; set; }
 
-        public static MongoEvent FromEventData(EventData data)
+        public static CosmosDbEvent FromEventData(EventData data)
         {
-            return new MongoEvent { Type = data.Type, Headers = data.Headers, Payload = data.Payload };
+            return new CosmosDbEvent { Type = data.Type, Headers = data.Headers, Payload = data.Payload };
         }
 
         public EventData ToEventData()

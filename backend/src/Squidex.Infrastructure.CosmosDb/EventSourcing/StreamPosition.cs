@@ -7,7 +7,6 @@
 
 using System.Text;
 using Microsoft.Extensions.ObjectPool;
-using MongoDB.Bson;
 
 namespace Squidex.Infrastructure.EventSourcing
 {
@@ -16,11 +15,9 @@ namespace Squidex.Infrastructure.EventSourcing
         private static readonly ObjectPool<StringBuilder> StringBuilderPool =
             new DefaultObjectPool<StringBuilder>(new StringBuilderPooledObjectPolicy());
 
-        private static readonly BsonTimestamp EmptyTimestamp = new BsonTimestamp(0, 0);
+        public static readonly StreamPosition Empty = new StreamPosition(0, -1, -1);
 
-        public static readonly StreamPosition Empty = new StreamPosition(EmptyTimestamp, -1, -1);
-
-        public BsonTimestamp Timestamp { get; }
+        public long Timestamp { get; }
 
         public long CommitOffset { get; }
 
@@ -31,7 +28,7 @@ namespace Squidex.Infrastructure.EventSourcing
             get { return CommitOffset == CommitSize - 1; }
         }
 
-        public StreamPosition(BsonTimestamp timestamp, long commitOffset, long commitSize)
+        public StreamPosition(long timestamp, long commitOffset, long commitSize)
         {
             Timestamp = timestamp;
 
@@ -44,9 +41,7 @@ namespace Squidex.Infrastructure.EventSourcing
             var sb = StringBuilderPool.Get();
             try
             {
-                sb.Append(position.Timestamp.Timestamp);
-                sb.Append("-");
-                sb.Append(position.Timestamp.Increment);
+                sb.Append(position.Timestamp);
                 sb.Append("-");
                 sb.Append(position.CommitOffset);
                 sb.Append("-");
@@ -66,12 +61,12 @@ namespace Squidex.Infrastructure.EventSourcing
             {
                 var parts = position.Split('-');
 
-                if (parts.Length == 4)
+                if (parts.Length == 3)
                 {
                     return new StreamPosition(
-                        new BsonTimestamp(int.Parse(parts[0]), int.Parse(parts[1])),
-                        long.Parse(parts[2]),
-                        long.Parse(parts[3]));
+                    long.Parse(parts[0]),
+                    long.Parse(parts[1]),
+                    long.Parse(parts[2]));
                 }
             }
 

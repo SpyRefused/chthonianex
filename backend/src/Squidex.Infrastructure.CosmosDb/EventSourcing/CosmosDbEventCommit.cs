@@ -6,36 +6,28 @@
 // ==========================================================================
 
 using System;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 
 namespace Squidex.Infrastructure.EventSourcing
 {
-    public sealed class MongoEventCommit
+    internal sealed class CosmosDbEventCommit
     {
-        [BsonId]
-        [BsonElement]
-        [BsonRepresentation(BsonType.String)]
+        [JsonProperty("id")]
         public Guid Id { get; set; }
 
-        [BsonRequired]
-        [BsonElement]
-        public BsonTimestamp Timestamp { get; set; }
+        [JsonProperty("events")]
+        public CosmosDbEvent[] Events { get; set; }
 
-        [BsonElement]
-        [BsonRequired]
-        public MongoEvent[] Events { get; set; }
-
-        [BsonElement]
-        [BsonRequired]
+        [JsonProperty("eventStreamOffset")]
         public long EventStreamOffset { get; set; }
 
-        [BsonElement]
-        [BsonRequired]
+        [JsonProperty("eventsCount")]
         public long EventsCount { get; set; }
 
-        [BsonElement]
-        [BsonRequired]
+        [JsonProperty("eventStream")]
         public string EventStream { get; set; }
+
+        [JsonProperty("timestamp")]
+        public long Timestamp { get; set; }
     }
 }
